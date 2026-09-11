@@ -5,49 +5,173 @@
 </head>
 <body>
 
-    <h1>Search Intelligence Research</h1>
+    <h1>Search Intelligence Research: Content Performance Analysis and Prioritization</h1>
+
+    <h2>Abstract</h2>
+    <p>
+        This research investigates whether observed search and content-performance
+        signals can help prioritize content pages for review. The analysis uses an
+        anonymized dataset from the FlyRank ML Internship repository containing
+        content-level search and engagement signals. A Logistic Regression model
+        was evaluated against a transparent Week-4 baseline using the same fixed
+        held-out test split. On this split, the Logistic Regression model achieved
+        0.8812 accuracy and 0.8618 F1, compared with 0.3397 accuracy and 0.4736 F1
+        for the baseline. These measured results support using the model as
+        decision-support for content prioritization, while human review remains
+        necessary before taking action.
+    </p>
+
+    <h2>Introduction / Problem Statement</h2>
+    <p>
+        Content teams may need to review many pages but cannot investigate every
+        page with the same level of attention. The FlyRank content problem used as
+        the case study for this research is therefore content prioritization:
+        identifying which pages may deserve review based on observed search and
+        engagement signals.
+    </p>
+    <p>
+        This research does not claim that changing a page will guarantee improved
+        future performance. Instead, it investigates whether patterns in the
+        supplied anonymized data can provide useful decision-support for deciding
+        which content should be reviewed, monitored, or investigated first.
+    </p>
 
     <h2>Research Question</h2>
     <p>
-        This research investigates which content signals are associated
-        with search performance and how these signals can support
-        practical content optimization decisions.
+        Can a simple machine-learning model identify higher-performing and
+        lower-performing content patterns more effectively than the Week-4
+        baseline rule?
     </p>
 
     <h2>Data</h2>
     <p>
-        The analysis uses the anonymized dataset provided in the
-        FlyRank internship repository.
+        The analysis uses the anonymized CSV dataset provided in the FlyRank ML
+        Internship repository. The file contains content-level search and
+        engagement signals including search volume, impressions, clicks, sessions,
+        CTR, average position, engagement measures, content age, freshness
+        information, and AI traffic.
+    </p>
+    <p>
+        The Hugging Face warehouse dataset was not used because it could not be
+        reliably accessed. The repository CSV was therefore used consistently for
+        the remaining analysis. No client names, URLs, or private search queries
+        were used. Fields that could directly reveal the prediction target were
+        excluded from the model features.
     </p>
 
     <h2>Methodology</h2>
     <p>
-        The research includes signal analysis, a baseline scoring approach,
-        machine learning modeling, validation, and leakage checks.
+        The project uses supervised classification. A performance label was created
+        from observed clicks in the supplied dataset: pages with clicks above the
+        dataset median were treated as the higher-performance class, while pages
+        at or below the median were treated as the lower-performance class.
+    </p>
+    <p>
+        A Logistic Regression model was selected because it is relatively simple
+        and interpretable. Numeric search and content signals were used as model
+        features, and missing numeric values were filled using the median. The
+        data was divided into a fixed 80% training set and 20% test set, with the
+        same held-out observations used to compare the model and baseline.
+    </p>
+    <p>
+        Feature and leakage checks were performed during the analysis. The target
+        column and directly excluded fields were not intentionally included as
+        model features.
     </p>
 
     <h2>Results</h2>
     <p>
-        The results compare the machine learning model with the Week 4
-        baseline and identify useful signals for content optimization.
+        The Logistic Regression model and Week-4 baseline were evaluated on the
+        same held-out test set of 6,000 observations.
     </p>
 
-    <h2>Limitations</h2>
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Method</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1 Score</th>
+        </tr>
+        <tr>
+            <td>Week-4 Baseline</td>
+            <td>0.3397</td>
+            <td>0.3614</td>
+            <td>0.6867</td>
+            <td>0.4736</td>
+        </tr>
+        <tr>
+            <td>Logistic Regression</td>
+            <td>0.8812</td>
+            <td>0.8670</td>
+            <td>0.8566</td>
+            <td>0.8618</td>
+        </tr>
+    </table>
+
     <p>
-        The findings describe observed patterns and should not be interpreted
-        as proof of causal relationships.
+        On this measured split, Logistic Regression performed better than the
+        transparent baseline across the reported metrics. This result is
+        descriptive and directional: it shows better measured performance on this
+        particular held-out split and does not establish that the model will always
+        outperform the baseline on future data.
     </p>
 
-    <h2>Recommendations</h2>
+    <h2>Limitations and Honest Framing</h2>
     <p>
-        The final recommendations provide ranked actions and reason codes
-        for practical content review.
+        The analysis uses the repository CSV rather than the full production
+        warehouse, so the findings should not be treated as representative of all
+        production data. The performance label is derived from observed clicks in
+        the supplied dataset and is therefore an observed proxy rather than a
+        direct measure of future performance.
+    </p>
+    <p>
+        Search signals such as CTR, position, impressions, and clicks may be
+        related to one another. The model therefore identifies measured patterns
+        and associations rather than proving independent causal effects.
+    </p>
+    <p>
+        The model and recommendations are intended for decision-support only.
+        They should not automatically publish, remove, rewrite, or otherwise
+        change content.
+    </p>
+
+    <h2>Ranked Recommendations</h2>
+    <p>
+        The final action playbook creates a ranked content-review queue using
+        observed signals. Pages with higher search volume, lower CTR, and older
+        update status can receive higher review priority.
+    </p>
+    <p>
+        The main reason codes include:
+    </p>
+    <ul>
+        <li><strong>HIGH_VOLUME_LOW_CTR:</strong> Review CTR opportunity.</li>
+        <li><strong>STALE_CONTENT:</strong> Review for refresh.</li>
+        <li><strong>MONITOR:</strong> Continue monitoring.</li>
+    </ul>
+    <p>
+        A high rank does not mean that a page is definitely performing poorly or
+        that refreshing it will definitely improve performance. Human reviewers
+        should consider actual content, search intent, business context, and
+        recent changes before taking action.
     </p>
 
     <h2>Reproducibility</h2>
     <p>
-        The analysis notebooks and supporting artifacts are available
-        in the accompanying GitHub repository.
+        The analysis is supported by executed notebooks covering feature and
+        leakage checks, signal audit, baseline scoring, machine-learning modeling,
+        validation audit, action playbook development, and the final capstone.
+    </p>
+    <p>
+        The model-versus-baseline results and ranked recommendations can be
+        regenerated from the anonymized repository dataset and project notebooks.
+    </p>
+
+    <h2>Acknowledgments and Data Credit</h2>
+    <p>
+        Built on the FlyRank ML Internship dataset.
+        Data credit: <a href="https://flyrank.ai">FlyRank</a>.
     </p>
 
 </body>
